@@ -5,7 +5,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 // ...import other services
 
 type Env = {
-  MyMCP: DurableObjectNamespace<pfnassMcpServers>;
+  pfnassMcpServers: DurableObjectNamespace<pfnassMcpServers>;
 };
 
 export class pfnassMcpServers extends McpAgent {
@@ -38,6 +38,22 @@ export class pfnassMcpServers extends McpAgent {
     }
 }
 
-export default pfnassMcpServers.mount("/sse", {
-  binding: "pfnassMcpServers",
-});
+// export default pfnassMcpServers.mount("/sse", {
+//   binding: "pfnassMcpServers",
+// });
+
+export default {
+	fetch(request: Request, env: Env, ctx: ExecutionContext) {
+		const url = new URL(request.url);
+
+		if (url.pathname === "/sse" || url.pathname === "/sse/message") {
+			return pfnassMcpServers.serveSSE("/sse").fetch(request, env, ctx);
+		}
+
+		if (url.pathname === "/mcp") {
+			return pfnassMcpServers.serve("/mcp").fetch(request, env, ctx);
+		}
+
+		return new Response("Not found", { status: 404 });
+	},
+};
