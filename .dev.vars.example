@@ -1,0 +1,5 @@
+# Local development environment variables
+# Copy this to .dev.vars and fill in your values
+
+HA_BASE_URL=http://local:8123
+HA_TOKEN=your_development_token_here
